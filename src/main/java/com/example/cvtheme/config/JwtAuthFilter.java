@@ -1,6 +1,6 @@
 package com.example.cvtheme.config;
 
-import com.example.cvtheme.dao.UserDao;
+import com.example.cvtheme.payload.dao.UserDao;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,8 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 /**
  * @author Abdelmajid El Ayachi
  **/
@@ -26,7 +24,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserDao userDao;
-
     private final JwtUtils jwtUtils;
 
     @Autowired
@@ -39,17 +36,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader =  request.getHeader(AUTHORIZATION);
+        final String authHeader =  request.getHeader("AUTHORIZATION");
         final String userEmail;
         final String jwtToken;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")){
             filterChain.doFilter(request, response);
             return;
         }
         jwtToken = authHeader.substring(7);
+
         userEmail = jwtUtils.extractUsername(jwtToken);
-        if(userEmail == null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDao.getUserByEmail(userEmail);
             final boolean isTokenValid = jwtUtils.isTokenValid(jwtToken, userDetails);
             if(isTokenValid){

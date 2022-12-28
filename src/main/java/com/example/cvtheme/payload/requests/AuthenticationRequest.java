@@ -1,4 +1,4 @@
-package com.example.cvtheme.dto;
+package com.example.cvtheme.payload.requests;
 
 
 import lombok.Getter;

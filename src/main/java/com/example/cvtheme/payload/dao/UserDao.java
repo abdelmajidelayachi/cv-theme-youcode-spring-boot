@@ -1,4 +1,4 @@
-package com.example.cvtheme.dao;
+package com.example.cvtheme.payload.dao;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
