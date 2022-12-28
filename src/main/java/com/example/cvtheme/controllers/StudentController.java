@@ -1,44 +1,41 @@
 package com.example.cvtheme.controllers;
 
-import com.example.cvtheme.entities.Student;
-import com.example.cvtheme.payload.requests.StudentRequest;
-import com.example.cvtheme.repository.StudentRepository;
+import com.example.cvtheme.requests.StudentRequest;
+import com.example.cvtheme.responses.PromoResponse;
+import com.example.cvtheme.responses.StudentResponse;
 import com.example.cvtheme.services.StudentService;
+import com.example.cvtheme.shared.dto.StudentDto;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
 @RestController
-@RequestMapping(path = "api/v1/student")
+@RequestMapping("/api/student")
+@CrossOrigin(origins = "*")
 public class StudentController {
-
-    private final StudentService studentService;
-
     @Autowired
-    public StudentController(StudentService studentService, StudentRepository studentRepository) {
-        this.studentService = studentService;
-    }
+    StudentService studentService;
 
     @GetMapping
-    public ResponseEntity<Map<String,Object>> getStudent() {
-        return ResponseEntity.ok(Map.of("status", true, "message", "Student found successfully", "data", studentService.findAllStudent()));
+    public String getUsers() {
+        System.out.println("getUsers");
+        return "get users";
     }
 
     @PostMapping
-    public void registerNewStudent(@RequestBody StudentRequest studentRequest){
-        studentService.saveStudent(studentRequest);
-    }
-
-    @PutMapping(path = "{studentId}")
-    public void updateStudent(@RequestParam(required = false) String email, @RequestParam(required=false) String name, @PathVariable("studentId") Long id){
-        studentService.updateStudent(name, email, id);
-    }
-
-    @DeleteMapping(path = "{studentId}")
-    public void deleteStudent(@PathVariable("studentId") Long studentId){
-        studentService.deleteStudent(studentId);
+    public ResponseEntity<StudentResponse> createStudent(@RequestBody StudentRequest studentRequest) {
+        StudentDto studentDto = new StudentDto();
+        BeanUtils.copyProperties(studentRequest, studentDto);
+        StudentDto createStudent = studentService.createStudent(studentDto);
+        StudentResponse studentResponse = new StudentResponse();
+        BeanUtils.copyProperties(createStudent, studentResponse);
+        studentResponse.setStatus(createStudent.getStatus().name());
+//        studentResponse.setPromo(createStudent.getPromo());
+        PromoResponse promoResponse = new PromoResponse();
+        BeanUtils.copyProperties(createStudent.getPromo(), promoResponse);
+        studentResponse.setPromo(promoResponse);
+        return new ResponseEntity<StudentResponse>(studentResponse, HttpStatus.CREATED);
     }
 }

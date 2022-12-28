@@ -1,7 +1,7 @@
-FROM openjdk:17
-#make app directory
-RUN mkdir /app
-ADD target/cvtheme-spring-boot.jar /app/cvtheme-spring-boot.jar
-WORKDIR /app
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "cvtheme-spring-boot.jar"]
+FROM postgres:latest
+
+EXPOSE 5430
+VOLUME /var/lib/postgresql/data
+
+#1 docker build -t cvtheme_db .
+#2 docker run -d -p 5430:5432 --name cvtheme_db --env-file .env cvtheme_db
